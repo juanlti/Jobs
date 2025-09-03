@@ -21,9 +21,19 @@ Route::get('llego', function () {
 
 Route::get('/send-welcome-to-queue/{queue}', function ($queue) {
 
+    // despachamos el job a una cola especifica
     SendWelcomeEmail::dispatch(userEmail: 'usuario@ejemplo.com', userName: 'usuario Ejemplo')->onQueue($queue);
 
     return "Email programado en la cola: {$queue}";
+});
+
+Route::get('/send-welcome-to-queue/{connection}/{queue}', function ($connection, $queue) {
+    //despachamos el jobs a una conexion y cola especifica
+    SendWelcomeEmail::dispatch(userEmail: 'usuario@ejemplo.com', userName: 'usuario Ejemplo')
+        ->onConnection($connection)
+        ->onQueue($queue);
+
+    return "Email programado en la conexion: {$connection} , en la cola: {$queue}";
 });
 
 /*

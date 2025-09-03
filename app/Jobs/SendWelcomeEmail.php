@@ -21,9 +21,12 @@ class SendWelcomeEmail implements ShouldQueue
 
     /**
      * Execute the job.
+     * @throws \Exception
      */
     public function handle(): void
     {
+        //throw new \Exception('Ha ocurrido un error');
+
         Log::info("Enviando email de bienvenida a {$this->userEmail}  para {$this->userName}");
 
         //sleep(seconds: 30);
