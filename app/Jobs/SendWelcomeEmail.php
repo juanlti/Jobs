@@ -29,7 +29,7 @@ class SendWelcomeEmail implements ShouldQueue
 
         Log::info("Enviando email de bienvenida a {$this->userEmail}  para {$this->userName}");
 
-        //sleep(seconds: 30);
+        //sleep(seconds: 15);
 
         Log::info("Email enviado a {$this->userEmail}");
     }

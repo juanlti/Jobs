@@ -36,18 +36,43 @@ Route::get('/send-welcome-to-queue/{connection}/{queue}', function ($connection,
     return "Email programado en la conexion: {$connection} , en la cola: {$queue}";
 });
 
-/*
-Route::view('dashboard', 'dashboard')
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
 
-Route::middleware(['auth'])->group(function () {
-    Route::redirect('settings', 'settings/profile');
-
-    Route::get('settings/profile', Profile::class)->name('settings.profile');
-    Route::get('settings/password', Password::class)->name('settings.password');
-    Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
+Route::get('dispatch-basic', function () {
+    SendWelcomeEmail::dispatch(userEmail: 'juancruz@hotmail.com', userName: 'juancruz');
+    config('queue.default');
+    return "Email programado en la cola: " . config('queue.default');
 });
 
-require __DIR__.'/auth.php';
-*/
+
+// capitulo 2
+
+//dispatch-async, e ejecuta de manera Síncrono  (mismo tiempo), no necesita un worker
+Route::get('dispatch-basic-async', function () {
+    SendWelcomeEmail::dispatchSync(userEmail: 'juancruz@hotmail.com', userName: 'juancruz');
+    config('queue.default');
+    return "Email programado en la cola: " . config('queue.default');
+});
+
+//dispatch after response, envia la respuesta y luego ejecuta el jobs,se ejecuta de manera Síncrono  (mismo tiempo),
+// no necesita un workers.
+Route::get('dispatch-basic-async-after-response', function () {
+    SendWelcomeEmail::dispatchAfterResponse(userEmail: 'juancruz@hotmail.com', userName: 'juancruz');
+    config('queue.default');
+    return "Email programado en la cola: " . config('queue.default');
+});
+
+//dispatch con delay
+Route::get('dispatch-basic-delay-now/{minutes?}', function ($minutes = 1) {
+    SendWelcomeEmail::dispatch(userEmail: 'juancruz@hotmail.com', userName: 'juancruz')->delay(now()->addMinutes($minutes));
+    config('queue.default');
+    return "Email programado en la cola: " . config('queue.default') . "se ejecutara en : {$minutes} minutos";
+});
+
+//dispatch con condidicional
+
+Route::get('dispatch-if/{condition?}', function ($condition = 1) {
+    $shouldSend = (bool)$condition;
+    SendWelcomeEmail::dispatchIf($shouldSend, userEmail: 'juancruz@hotmail.com', userName: 'juancruz');
+    config('queue.default');
+    return "Email programado en la cola: " . config('queue.default') . " con condicional si solo si si es verdadero : ".$condition;
+});
