@@ -1,5 +1,6 @@
 <?php
 
+use App\Jobs\ProcessPayment;
 use App\Jobs\SendWelcomeEmail;
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
@@ -74,5 +75,19 @@ Route::get('dispatch-if/{condition?}', function ($condition = 1) {
     $shouldSend = (bool)$condition;
     SendWelcomeEmail::dispatchIf($shouldSend, userEmail: 'juancruz@hotmail.com', userName: 'juancruz');
     config('queue.default');
-    return "Email programado en la cola: " . config('queue.default') . " con condicional si solo si si es verdadero : ".$condition;
+    return "Email programado en la cola: " . config('queue.default') . " con condicional si solo si si es verdadero : " . $condition;
+});
+
+//Jobs ProcessPayment
+
+Route::get('/process-payments', function () {
+    // despachamos jobs con diferentes prioridades
+    ProcessPayment::dispatch(ordenId: 600, amount: 10, isHighPriority: false); //baja  prioridad
+    ProcessPayment::dispatch(ordenId: 525, amount: 1000, isHighPriority: true); //alta prioridad
+    ProcessPayment::dispatch(ordenId: 450, amount: 500, isHighPriority: false);//baja  prioridad
+    ProcessPayment::dispatch(ordenId: 530, amount: 1500, isHighPriority: true);//alta prioridad
+
+    return 'Pagos enviados a diferentes colas. Para procesar con prioridad, ejecuta:
+            "php artisan queue:work --queue=payments-high,payments-default"';
+
 });
