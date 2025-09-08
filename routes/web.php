@@ -2,6 +2,7 @@
 
 use App\Jobs\ProcessPayment;
 use App\Jobs\SendWelcomeEmail;
+use App\Jobs\SyncInventory;
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
@@ -79,7 +80,6 @@ Route::get('dispatch-if/{condition?}', function ($condition = 1) {
 });
 
 //Jobs ProcessPayment
-
 Route::get('/process-payments', function () {
     // despachamos jobs con diferentes prioridades
     ProcessPayment::dispatch(ordenId: 600, amount: 10, isHighPriority: false); //baja  prioridad
@@ -89,5 +89,21 @@ Route::get('/process-payments', function () {
 
     return 'Pagos enviados a diferentes colas. Para procesar con prioridad, ejecuta:
             "php artisan queue:work --queue=payments-high,payments-default"';
+
+});
+
+//Jobs SyncInventory, jobs con posibilidades de error y lo capturamos
+Route::get('/jobs-syncInventory/{id}', function ($id) {
+
+    $products = [
+        1 => 'iPhone 15 Pro',
+        2 => 'Samsung Galaxy S24',
+        3 => 'MacBook Pro'
+    ];
+    $name = $products[$id] ?? "Producto #{$id}";
+
+    SyncInventory::dispatch(productId: $id, productName: $name . " <==== juan");
+
+    return "Sincronizacion de '{$name}'  enviada a la cola - Ejecuta queue:work";
 
 });
