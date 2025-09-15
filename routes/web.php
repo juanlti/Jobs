@@ -107,3 +107,19 @@ Route::get('/jobs-syncInventory/{id}', function ($id) {
     return "Sincronizacion de '{$name}'  enviada a la cola - Ejecuta queue:work";
 
 });
+
+// routes/web.php
+Route::get('/h-test', function () {
+    dispatch(function () { \Log::info('Horizon test OK'); })->onQueue('default');
+    return 'ok';
+});
+// routes/web.php
+Route::get('/horizon/debug', function () {
+    return response()->json([
+        'env' => app()->environment(),
+        'horizon_prefix' => config('horizon.prefix'),
+        'redis' => config('database.redis.default'),
+        'queues' => config('horizon.environments.'.app()->environment().'.supervisor-1.queue'),
+    ]);
+});
+
