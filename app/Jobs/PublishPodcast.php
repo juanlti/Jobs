@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Log;
 
 class PublishPodcast implements ShouldQueue
 {
@@ -12,7 +13,7 @@ class PublishPodcast implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct()
+    public function __construct(public int $podcastId, public string $title)
     {
         //
     }
@@ -22,6 +23,8 @@ class PublishPodcast implements ShouldQueue
      */
     public function handle(): void
     {
-        //
+        Log::info('Publicando podcast #' . $this->podcastId . ' con titulo ' . $this->title . '');
+        sleep(5);
+        Log::info('Podcast #' . $this->podcastId . ' publicado');
     }
 }

@@ -1,9 +1,13 @@
 <?php
 
 use App\Jobs\GenerateSiteMap;
+use App\Jobs\PreparePodcast;
 use App\Jobs\ProcessPayment;
+use App\Jobs\ProcessUserUpload;
+use App\Jobs\PublishPodcast;
 use App\Jobs\SendWelcomeEmail;
 use App\Jobs\SyncInventory;
+use App\Jobs\TranscribePodcast;
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
@@ -136,7 +140,21 @@ Route::get('/generate-sitemap/{domain}/{count?}', function ($domain, $count = 3)
 })->name('settings.profile');
 
 Route::get('/processUser/{idUser}/{fileName}', function ($idUser, $fileName) {
-    \App\Jobs\ProcessUserUpload::dispatch(userId: $idUser = 15, fileName: $fileName = 'juan');
+    ProcessUserUpload::dispatch(userId: $idUser = 15, fileName: $fileName = 'juan');
     return "Procesando usuario terminado {$idUser} - Ejecuta queue: " . config('queue.default');
 })->name('settings.profile');
+
+Route::get('/processPodcast/{id}/{title}', function ($id, $title) {
+
+    Bus::chain([
+        new PreparePodcast($id, $title),
+        new TranscribePodcast($id, $title),
+        new PublishPodcast($id, $title),
+    ])->catch(function ($exception) use ($id) {
+        Log::error("Error en la cadena de procesamiento del podcast #{$id}",
+            ['error' => $exception->getMessage()]);
+    })->dispatch();
+
+    return "Procesamiento en cadena del podcast  {$id} -  programado - Ejecuta queue: " . config('queue.default');
+});
 
