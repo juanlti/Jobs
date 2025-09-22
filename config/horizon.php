@@ -184,7 +184,7 @@ return [
     'defaults' => [
         'supervisor-1' => [
             'connection' => 'redis',
-            'queue' => ['emails', 'info', 'default'],
+            'queue' => ['emails', 'info', 'default','meet'],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',
             'minProcesses' => 1,
@@ -223,7 +223,7 @@ return [
         'local' => [
             'supervisor-1' => [
                 'connection' => 'redis',
-                'queue' => ['emails', 'info', 'default'],
+                'queue' => ['emails', 'info', 'default','meet'],
                 'balance' => 'simple',
                 'autoScalingStrategy' => 'time',
                 'minProcesses' => 1,

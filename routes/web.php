@@ -1,5 +1,6 @@
 <?php
 
+use App\Jobs\GenerateSiteMap;
 use App\Jobs\ProcessPayment;
 use App\Jobs\SendWelcomeEmail;
 use App\Jobs\SyncInventory;
@@ -110,7 +111,9 @@ Route::get('/jobs-syncInventory/{id}', function ($id) {
 
 // routes/web.php
 Route::get('/h-test', function () {
-    dispatch(function () { \Log::info('Horizon test OK'); })->onQueue('default');
+    dispatch(function () {
+        \Log::info('Horizon test OK');
+    })->onQueue('default');
     return 'ok';
 });
 // routes/web.php
@@ -119,7 +122,21 @@ Route::get('/horizon/debug', function () {
         'env' => app()->environment(),
         'horizon_prefix' => config('horizon.prefix'),
         'redis' => config('database.redis.default'),
-        'queues' => config('horizon.environments.'.app()->environment().'.supervisor-1.queue'),
+        'queues' => config('horizon.environments.' . app()->environment() . '.supervisor-1.queue'),
     ]);
 });
+
+Route::get('/generate-sitemap/{domain}/{count?}', function ($domain, $count = 3) {
+
+
+    for ($i = 0; $i < $count; $i++) {
+        GenerateSiteMap::dispatch($domain, $i);
+    }
+    return "Generando de sitemap para {$domain} programada  {$count} veces - Ejecuta queue:work";
+})->name('settings.profile');
+
+Route::get('/processUser/{idUser}/{fileName}', function ($idUser, $fileName) {
+    \App\Jobs\ProcessUserUpload::dispatch(userId: $idUser = 15, fileName: $fileName = 'juan');
+    return "Procesando usuario terminado {$idUser} - Ejecuta queue: " . config('queue.default');
+})->name('settings.profile');
 
