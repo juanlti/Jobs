@@ -2,6 +2,7 @@
 
 use App\Jobs\GenerateSiteMap;
 use App\Jobs\PreparePodcast;
+use App\Jobs\ProcessImage;
 use App\Jobs\ProcessPayment;
 use App\Jobs\ProcessUserUpload;
 use App\Jobs\PublishPodcast;
@@ -158,3 +159,47 @@ Route::get('/processPodcast/{id}/{title}', function ($id, $title) {
     return "Procesamiento en cadena del podcast  {$id} -  programado - Ejecuta queue: " . config('queue.default');
 });
 
+Route::get('/procss-imagees', function () {
+    $images = [
+        'image1.jpg',
+        'image2.jpg',
+        'image3.jpg',
+        'image4.jpg',
+        'image5.jpg',
+        'image6.jpg',
+        'image7.jpg',
+
+    ];
+
+    $totalImages = count($images);
+    // la capacidad del Bas es dinamico
+    $batch = Bus::batch([])
+        ->then(function ($batch, $exeption) {
+            Log::info("Todas las imagenes han sido procesadas", [
+                'processd' => $batch->processedJobs(),
+                'failed' => $batch->failedJobs,
+
+            ]);
+        })
+        ->catch(function ($batch, $exception) {
+            Log::error("Error en el procesamiento por lotes", [
+                'failed_job' => $batch->failedJobs,
+            ]);
+        })
+        ->finally(function ($batch) {
+            Log::info("Proceso de imagenes finalizado",[
+                'finished_job' => $batch->finishedAt,
+            ]);
+        })->name('process-images')
+        ->dispatch();
+
+    Log::info("informacion del Batch antes de agregale los jobs", [$batch->toArray()]);
+    //agregamos los jobs (imagenes) al batch
+    foreach ($images as $index => $image) {
+        $batch->add(new ProcessImage($image, $index + 1, $totalImages));
+    }
+
+
+    return "Procsamiento por lotes de {$totalImages} imagnes iniciado - ID de batch: {$batch->id} - Ejecuta queue: " . config('queue.default');
+
+});
