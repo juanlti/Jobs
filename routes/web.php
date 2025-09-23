@@ -187,7 +187,7 @@ Route::get('/procss-imagees', function () {
             ]);
         })
         ->finally(function ($batch) {
-            Log::info("Proceso de imagenes finalizado",[
+            Log::info("Proceso de imagenes finalizado", [
                 'finished_job' => $batch->finishedAt,
             ]);
         })->name('process-images')
@@ -201,5 +201,25 @@ Route::get('/procss-imagees', function () {
 
 
     return "Procsamiento por lotes de {$totalImages} imagnes iniciado - ID de batch: {$batch->id} - Ejecuta queue: " . config('queue.default');
-
 });
+
+
+Route::get('/batch-status/{id}', function ($id) {
+    $batch = Bus::findBatch($id);
+
+    if (!$batch) {
+        return "Batch no encontrado";
+    }
+    return [
+        'id' => $batch->id,
+        'name' => $batch->name,
+        'total_jobs' => $batch->totalJobs,
+        'failed_jobs' => $batch->failedJobs,
+        'pending_jobs' => $batch->pendingJobs,
+        'processed_jobs' => $batch->processedJobs(),
+        'progress' => $batch->progress() . '%',
+        'finished' => $batch->finishedAt,
+        'cancelled' => $batch->cancelledAt,
+
+    ];
+})->name('settings.profile');
