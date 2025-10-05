@@ -12,7 +12,7 @@ class SendWelcomeSequence implements ShouldQueue
 {
     use Queueable,Dispatchable;
 
-    // cada job va tener 200 segundos para que considere un jobs fallido si supero el timeout
+    // cada job va tener 200 segundos para que lo vuelva a intentar antes de que se pase a otro jobs y asi evitar solapamiento
     public int $timeout=200;
 
     /**
