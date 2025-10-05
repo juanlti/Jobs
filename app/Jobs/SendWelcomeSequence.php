@@ -54,7 +54,6 @@ class SendWelcomeSequence implements ShouldQueue
             'subject'=>$subject,
             'content'=>$content,
         ]);
-
         sleep(1);
 
         Log::info("Email enviado a {$this->userEmail}");
