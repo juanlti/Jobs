@@ -4,16 +4,14 @@ use App\Jobs\GenerateSiteMap;
 use App\Jobs\PreparePodcast;
 use App\Jobs\ProcessImage;
 use App\Jobs\ProcessPayment;
+use App\Jobs\ProcessPaymentSecurely;
 use App\Jobs\ProcessUserUpload;
 use App\Jobs\PublishPodcast;
 use App\Jobs\SendWelcomeEmail;
 use App\Jobs\SyncInventory;
 use App\Jobs\TranscribePodcast;
-use App\Livewire\Settings\Appearance;
-use App\Livewire\Settings\Password;
-use App\Livewire\Settings\Profile;
 use Illuminate\Support\Facades\Route;
-use Symfony\Component\Mailer\Messenger\SendEmailMessage;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -203,7 +201,6 @@ Route::get('/procss-imagees', function () {
     return "Procsamiento por lotes de {$totalImages} imagnes iniciado - ID de batch: {$batch->id} - Ejecuta queue: " . config('queue.default');
 });
 
-
 Route::get('/batch-status/{id}', function ($id) {
     $batch = Bus::findBatch($id);
 
@@ -223,3 +220,20 @@ Route::get('/batch-status/{id}', function ($id) {
 
     ];
 })->name('settings.profile');
+
+//jobs encriptados para datos sensibles
+
+Route::get('/process-secure-payment/{customerId}', function ($customerId) {
+
+    //ProcessPaymentSecurely::dispatchSync('4242424242424242', 99.99, 1);
+    //estos datos deben venir de un formulario de pago
+
+    $creditCardNumber = '424242424242';
+    $cvv = '123';
+    $expirationDate = '12/2022';
+    $amount = 99.99;
+
+    //utilizamos los datos recibidos para instanciar el job
+    dispatch(new ProcessPaymentSecurely($creditCardNumber, $amount,$customerId));
+    return "Procesamiento seguro de pago programado - Ejecuta queue: " . config('queue.default');
+});
