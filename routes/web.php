@@ -8,6 +8,7 @@ use App\Jobs\ProcessPaymentSecurely;
 use App\Jobs\ProcessUserUpload;
 use App\Jobs\PublishPodcast;
 use App\Jobs\SendWelcomeEmail;
+use App\Jobs\SendWelcomeSequence;
 use App\Jobs\SyncInventory;
 use App\Jobs\TranscribePodcast;
 use Illuminate\Support\Facades\Route;
@@ -236,4 +237,11 @@ Route::get('/process-secure-payment/{customerId}', function ($customerId) {
     //utilizamos los datos recibidos para instanciar el job
     dispatch(new ProcessPaymentSecurely($creditCardNumber, $amount,$customerId));
     return "Procesamiento seguro de pago programado - Ejecuta queue: " . config('queue.default');
+});
+
+Route::get('/welcome-new-user/{name}/{email}', function ($name,$email) {
+    $userId=rand(1000,9999);
+    SendWelcomeSequence::dispatch($userId,$email,$name);
+
+return "Secuencia de  bienvenida iniciada para  {$name} ($email) - Ejecuta queue: ". config('queue.default');
 });
